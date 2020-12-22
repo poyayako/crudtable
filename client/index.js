@@ -4,11 +4,41 @@ const addBtn = document.querySelector('#add-name-btn');
 const cancelBtn = document.querySelector('.show-cancel-edit-btn');
 
 
-// addBtns.addEventListener('click',function(){
+//Selecting each delete button inside the Table
+document.querySelector('table tbody').addEventListener('click',function(event) {
+    if(event.target.className === "delete-row-btn") {
+        //delete row in frontend
+        document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
+        deleteRowByID(event.target.dataset.id);    
+    }
+    
+    if(event.target.className === "show-edit-row-btn"){
+        
+        revealSaveCancelBtn(event.target);
 
-//     log('leoleo');
+    }
 
-// });
+    //cancel button event listener
+    if(event.target.className === "show-cancel-edit-btn"){
+        const cellNameOldVal = sessionStorage.getItem('cell1');
+        const cellDateOldVal = sessionStorage.getItem('cell2');
+        const cellName = event.target.parentNode.parentNode.childNodes[1];
+        const cellDate = event.target.parentNode.parentNode.childNodes[2];
+    
+        cellName.innerHTML = cellNameOldVal;
+        cellDate.innerHTML = cellDateOldVal;
+        cellName.contentEditable = "false";
+        cellDate.contentEditable = "false";
+        hideSaveCancelBtn(event.target);
+    }
+
+    //save button event listener
+    if(event.target.className === "show-save-edit-btn"){
+        log(event.target.dataset.id);
+        hideSaveCancelBtn(event.target);
+    }
+});
+
 
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -19,7 +49,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 
-addBtn.onclick = function (){
+addBtn.onclick = () => {
     const nameInput = document.querySelector('#name-input'); 
     const name = nameInput.value;
     nameInput.value ="";
@@ -35,6 +65,9 @@ addBtn.onclick = function (){
     .then(data =>  insertRowIntoTable(data['data']));
     
 }
+
+
+///////////////////////////////////////////methods///////////////////////./
 
 function insertRowIntoTable(data){
     const table = document.querySelector('table tbody');
@@ -102,23 +135,7 @@ function loadHTMLTable(data){
 
 }
 
-//Selecting each delete button inside the Table
-document.querySelector('table tbody').addEventListener('click',function(event) {
-    if(event.target.className === "delete-row-btn") {
-        //delete row in frontend
-        document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
-        deleteRowByID(event.target.dataset.id);    
-    }
-    
-    if(event.target.className === "show-edit-row-btn"){
-        
-        revealSaveCancelBtn(event.target);
 
-    }
-    if(event.target.className === "show-cancel-edit-btn"){
-        hideSaveCancelBtn(event.target);
-    }
-});
 
 
 
@@ -135,17 +152,21 @@ function deleteRowByID(id){
 
 
 function revealSaveCancelBtn(element){
+    
+    const editBtn = element.parentNode.childNodes[1];
+    const saveBtn = element.parentNode.childNodes[3];
+    const cancelBtn = element.parentNode.childNodes[5];
+
+    // saveBtn.addEventListener('click',(event) => {
+    //     log(event.target.getAttribute('data-id'));
+
+    // });
+
+
     if(stillEditing()){
         showDialogBox();
-
     }else{
-        const editBtn = element.parentNode.childNodes[1];
-        const saveBtn = element.parentNode.childNodes[3];
-        const cancelBtn = element.parentNode.childNodes[5];
-        
         makeRowEditable(element);
-    
-
         editBtn.classList.toggle('hide-edit-row-btn',true);
         editBtn.classList.toggle('show-edit-row-btn',false);
         saveBtn.classList.toggle('show-save-edit-btn',true);
@@ -172,18 +193,16 @@ function makeRowEditable(element){
         sessionStorage.setItem(sessionStorageKey, currentCellOfRow.innerHTML);
     }
 
+
     editableCells[0].onblur = function(event) {
-        const test = sessionStorage.getItem('cell1');
-        log(sessionStorage);
+         
+       log(sessionStorage);
     }
     
     
     editableCells[0].focus();
 }
 
-//function tempSaveValues() {
-  //  const sampleArray = [];
-//}
 
 
 function hideSaveCancelBtn(element){
