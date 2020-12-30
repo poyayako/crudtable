@@ -6,6 +6,10 @@ const cancelBtn = document.querySelector('.show-cancel-edit-btn');
 
 //Selecting each delete button inside the Table
 document.querySelector('table tbody').addEventListener('click',function(event) {
+    const cellName = event.target.parentNode.parentNode.childNodes[1];
+    const cellDate = event.target.parentNode.parentNode.childNodes[2];
+    
+    
     if(event.target.className === "delete-row-btn") {
         //delete row in frontend
         document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
@@ -18,29 +22,36 @@ document.querySelector('table tbody').addEventListener('click',function(event) {
 
     }
 
-    //cancel button event listener
+    //cancel button handler
     if(event.target.className === "show-cancel-edit-btn"){
         const cellNameOldVal = sessionStorage.getItem('cell1');
         const cellDateOldVal = sessionStorage.getItem('cell2');
-        const cellName = event.target.parentNode.parentNode.childNodes[1];
-        const cellDate = event.target.parentNode.parentNode.childNodes[2];
-    
+        
         cellName.innerHTML = cellNameOldVal;
         cellDate.innerHTML = cellDateOldVal;
         cellName.contentEditable = "false";
         cellDate.contentEditable = "false";
+        
         hideSaveCancelBtn(event.target);
     }
 
-    //save button event listener
+    //save button handler
     if(event.target.className === "show-save-edit-btn"){
         log(event.target.dataset.id);
+
+        
+        updateRowByID(event.target.dataset.id,cellName.textContent);
+        
+        cellName.contentEditable = "false";
+        cellDate.contentEditable = "false";
+        
         hideSaveCancelBtn(event.target);
     }
 });
 
 
 
+//DOM ONLOAD
 document.addEventListener('DOMContentLoaded',function(){
     fetch('http://localhost:5000/getall')
     .then(response => response.json())
@@ -66,8 +77,36 @@ addBtn.onclick = () => {
     
 }
 
+  
+function deleteRowByID(id){
+    fetch('http://localhost:5000/delete/' + id,
+    {
+         method : 'DELETE' 
+    })
+    .then(response => response.json())
+    .then(data => log(data));
+  
+}
 
-///////////////////////////////////////////methods///////////////////////./
+function updateRowByID(id,name){
+    fetch('http://localhost:5000/update/',
+    {
+        headers: {
+            'Content-type': 'application/json'
+        },
+        method : 'PATCH',
+         body : JSON.stringify({
+            id : id,
+            name : name
+         })
+    })
+    .then(response => response.json())
+    .then(data => log(data));
+
+}
+
+
+//My Methods Goes Here//
 
 function insertRowIntoTable(data){
     const table = document.querySelector('table tbody');
@@ -136,21 +175,6 @@ function loadHTMLTable(data){
 }
 
 
-
-
-
-  
-function deleteRowByID(id){
-    fetch('http://localhost:5000/delete/' + id,
-    {
-         method : 'DELETE' 
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-  
-}
-
-
 function revealSaveCancelBtn(element){
     
     const editBtn = element.parentNode.childNodes[1];
@@ -159,7 +183,6 @@ function revealSaveCancelBtn(element){
 
     // saveBtn.addEventListener('click',(event) => {
     //     log(event.target.getAttribute('data-id'));
-
     // });
 
 

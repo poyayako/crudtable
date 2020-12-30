@@ -19,7 +19,6 @@ app.post('/insert',(request,response) => {
 
     const { name } = request.body;
     const db = dbService.getDbServiceInstance();
-
     const result = db.insertNewName(name);
     
     result
@@ -43,7 +42,20 @@ app.get('/getall',(request,response) => {
 
 
 //update
+app.patch('/update/',(request,response) => {
+   const { id,name } = request.body;
 
+   console.log(`ID: ${id} Name: ${name}`);
+
+   const db = dbService.getDbServiceInstance();
+
+   const result = db.updateRowByID(id,name);
+   
+   result
+   .then(data => response.json({updated_data:data}))
+   .catch(err => console.log(err));
+    
+});
 
 
 
