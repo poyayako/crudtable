@@ -118,7 +118,7 @@ class DbService{
             });
 
             return 'data-updated : '+id;
-            
+                
 
         }catch(error){
             console.log(error);
