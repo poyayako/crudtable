@@ -30,19 +30,25 @@ class DbService{
         return instance ? instance : new DbService();
     }
 
-    async getAllData(){
+    async getAllData(tblName){
         try{
             const response = await new Promise((resolve,reject) =>{
-            
-                const query = "SELECT * FROM names;";
-                
+                var query = "";
+                if(tblName == 'products'){
+                    query = "SELECT * FROM getAllProduct;";
+                }else if(tblName == 'prodcategory'){
+                    query = "SELECT * FROM tblcategory;";
+                }else if(tblName == 'suppliers'){
+                    query = "SELECT * FROM tblsupplier;";
+                }
+    
                 connection.query(query, (err,results) => {
                     if(err) reject(new Error(err.message));
                     resolve(results);
                 })
             });
 
-            console.log(response);
+            //console.log(response);
             return response;
 
         }catch (error){

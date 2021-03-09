@@ -1,15 +1,12 @@
-body {
+/*sidebarnav*/
 
-    font-family: Arial, Helvetica, sans-serif;
-    
 
-}
 
+/*Main*/
 main {
     width : 50%;
     margin: 50px auto;
     text-align: center;
-
 }
 
 .search-area{

@@ -14,6 +14,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended : false }));
 
 
+
+///////////////////SHOW ALL DATA //////////////
+app.get('/showall/:tblName',(request,response) => {  
+    const {tblName} = request.params;
+    
+    const db = dbService.getDbServiceInstance();
+    console.log(request.params)
+    const result = db.getAllData(tblName);
+
+   result
+   .then(data => response.json({data : data}))
+   .catch(err => console.log(err));
+
+});
+
+////////////////////////INSERT ROUTES //////////////////////////
 //create
 app.post('/insert',(request,response) => {
 
@@ -24,20 +40,6 @@ app.post('/insert',(request,response) => {
     result
     .then(data => response.json({ data : data}))
     .catch(err => console.log(err));
-});
-
-
-//read
-app.get('/getall',(request,response) => {  
-
-    const db = dbService.getDbServiceInstance();
-
-   const result = db.getAllData();
-
-   result
-   .then(data => response.json({data : data}))
-   .catch(err => console.log(err));
-
 });
 
 
