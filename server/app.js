@@ -20,14 +20,14 @@ app.get('/showall/:tblName',(request,response) => {
     const {tblName} = request.params;
     
     const db = dbService.getDbServiceInstance();
-    console.log(request.params)
     const result = db.getAllData(tblName);
-
-   result
+   
+    result
    .then(data => response.json({data : data}))
    .catch(err => console.log(err));
 
 });
+
 
 ////////////////////////INSERT ROUTES //////////////////////////
 //create
