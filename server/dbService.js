@@ -15,11 +15,9 @@ const connection = mysql.createConnection({
 
 
 connection.connect((err) => {
-
     if(err){
         console.log(err.message);
     }
-    
     //if connection is established
     console.log('db ' + connection.state);
 });
@@ -56,9 +54,8 @@ class DbService{
         }
     }
 
-    async insertNewName(name){
+    async insertData(name){
         try{
-            
             const dateAdded = new Date();
             const insertId = await new Promise((resolve,reject) =>{
                 
@@ -70,7 +67,6 @@ class DbService{
                     resolve(result.insertId);
                 })
             });
-
             //.console.log(insertId);
             return {
                 id : insertId,
@@ -78,14 +74,11 @@ class DbService{
                 dateAdded : dateAdded
             };
 
-            
         }catch (error){
             console.log(error);
         }
     }
 
-
-    
     async deleteRowById(id){
         try{
 

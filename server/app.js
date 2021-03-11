@@ -1,4 +1,6 @@
+const path = require('path')
 const express = require('express');
+
 const cors = require('cors');
 const dotenv = require('dotenv');
 
@@ -10,8 +12,13 @@ const dbService = require('./dbService');
 
 app.use(cors());
 
+app.use(express.static(path.join(__dirname,'./public')));
+console.log(path.join(__dirname,'./public'))
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended : false }));
+
 
 
 
@@ -35,7 +42,7 @@ app.post('/insert',(request,response) => {
 
     const { name } = request.body;
     const db = dbService.getDbServiceInstance();
-    const result = db.insertNewName(name);
+    const result = db.insertData(name);
     
     result
     .then(data => response.json({ data : data}))
