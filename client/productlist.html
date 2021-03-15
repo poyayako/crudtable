@@ -4,40 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD APP Javascript</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="/client/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/font-awesome/css/all.min.css" rel="stylesheet">
+    
 </head>
+<style>
+  @media screen and (min-width: 676px) {
+        .modal-dialog {
+          max-width: 700px; /* New width for default modal */
+        }
+        .desc-text-size{
+          font-size: .5rem;
+        }
+    }
+</style>
 <body>
-    <main>
-        <label for="txtname">Name:</label>
-        <input type="text" id="name-input">
-        <button id="add-name-btn">Add Name</button>
-        <div class="search-area">
-            <input type="text" id="search-input" placeholder="Search By Name">
-            <button id="search-btn">Search</button>
+<main>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#inputForm">Add New Product</button>
+  <!-- Input Form Modal -->
+  <div class="modal fade" id="inputForm" tabindex="-1" role="dialog" aria-labelledby="dialogBox" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dialogBox">Add New Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button> 
         </div>
-        <table id="table">
-            <thead>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Date Added</th>
-                <th>Delete</th>
-                <th>Edit</th>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </main>
-
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-    <!-- Modal content -->
-    <div class="modal-content">
-      <span class="close" id="close-btn">&times;</span>
-      <p class="modal-msg">place your message here!</p>
+        <div class="modal-body">
+            <div class="form-group">
+              <div class="row">
+                <label for="prodname" class="">Name :</label>
+                <input type="text" class="form-control" id="prodname" placeholder="Please Enter Product Name" name="prodname" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <label for="prodcategory">Category :</label>
+                <select name="prodcategory" id="prodcategory" class="form-control" required></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <label for="prodprice" class="">Price :</label>
+                <input type="text" class="form-control" id="prodprice" placeholder="$10.00" name="prodprice" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <label for="prodsize" class="">Sizes :</label>
+                <select name="prodsize" id="prodsize" class="form-control" required></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <label for="proddescription" class="">Description :</label>
+                <textarea class="form-control" id="proddescription" placeholder="Please Enter Product Name" name="proddescription" required></textarea>
+              </div>
+            </div>        
+        <!-- </form> -->
+        </div>
+        <div class="modal-footer">
+          <button id="save-btn" type="button" class="btn btn-success">Save</button>
+          <button id="cancel-btn" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        </div>
+      </div>
     </div>
+  </div>
+
+ <div class="search-area">
+    <input type="text" id="search-input" placeholder="Search By Name">
+    <button id="search-btn">Search</button>
+  </div>
+  <div class="table-responsive-sm">
+    <table id="table" class="table table-sm">
+      <thead class="thead-dark"></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  </main>
+
+<!-- The Dalogbox -->
+<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dialogBox">
+    Launch demo modal
+  </button>  -->
   
-</div>
-    <script src="./js/productlist.js"></script>
+  <!-- Modal -->
+  <div class="modal fade" id="dialogBox" tabindex="-1" role="dialog" aria-labelledby="dialogBox" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">        
+        <div class="modal-header">
+          <!-- <h5 class="modal-title" id="dialogBox"></h5> -->
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button> 
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button id="savebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
+          <button id="nobtn" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="./js/productlist.js"></script>
 </body>
 </html>

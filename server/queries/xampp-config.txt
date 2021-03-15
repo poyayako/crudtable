@@ -1,0 +1,6 @@
+Alias /phpmyadmin "C:/xampp/phpMyAdmin/"
+<Directory "C:/xampp/phpMyAdmin">
+AllowOverride AuthConfig
+Require granted
+ErrorDocument 403 /error/XAMPP_FORBIDDEN.html.var
+</Directory>

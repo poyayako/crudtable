@@ -21,43 +21,39 @@ app.use(express.urlencoded({ extended : false }));
 
 
 
-
-///////////////////SHOW ALL DATA //////////////
-app.get('/showall/:tblName',(request,response) => {  
-    const {tblName} = request.params;
-    
+///PRODUCT GET ROUTES////
+app.get('/:tblName/:id',(request,response) => {  
+    const {tblName,id} = request.params;
+    // console.log(tblname);
     const db = dbService.getDbServiceInstance();
-    const result = db.getAllData(tblName);
-   
+    const result = db.getAllData(tblName,id);
+    
     result
    .then(data => response.json({data : data}))
    .catch(err => console.log(err));
-
 });
 
 
-////////////////////////INSERT ROUTES //////////////////////////
-//create
-app.post('/insert',(request,response) => {
+//insert product
+app.post('/insert/product',(request,response) => {
 
-    const { name } = request.body;
-    const db = dbService.getDbServiceInstance();
-    const result = db.insertData(name);
-    
-    result
-    .then(data => response.json({ data : data}))
-    .catch(err => console.log(err));
+    const { prodName,prodCategory,prodDescription,prodPrice,prodSize } = request.body;
+    console.log(prodName);
+    // const db = dbService.getDbServiceInstance();
+    // const result = db.insertData(name);
+
+    // result
+    // .then(data => response.json({ data : data}))
+    // .catch(err => console.log(err));
 });
 
 
 //update
 app.patch('/update/',(request,response) => {
-   const { id,name } = request.body;
-
+   
+    const { id,name } = request.body;
    console.log(`ID: ${id} Name: ${name}`);
-
    const db = dbService.getDbServiceInstance();
-
    const result = db.updateRowByID(id,name);
    
    result
@@ -78,9 +74,9 @@ app.delete('/delete/:id', (request,response) => {
     result
     .then(data => response.json({deleted_data:data}))
     .catch(err => console.log(err));
- 
-  
 })
+
+
 
 
 app.listen(process.env.PORT , () => console.log('app is running'));

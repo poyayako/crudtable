@@ -28,18 +28,18 @@ class DbService{
         return instance ? instance : new DbService();
     }
 
-    async getAllData(tblName){
+    async getAllData(tblName,id){
         try{
             const response = await new Promise((resolve,reject) =>{
+                
                 var query = "";
-                if(tblName == 'products'){
-                    query = "SELECT * FROM getAllProduct;";
-                }else if(tblName == 'prodcategory'){
+                if(tblName == 'products' && id == 'all'){
+                    query = "SELECT * FROM showallproducts;";
+                }else if(tblName == 'category' && id=='all'){
                     query = "SELECT * FROM tblcategory;";
-                }else if(tblName == 'suppliers'){
-                    query = "SELECT * FROM tblsupplier;";
+                }else if(tblName == 'size'){
+                    query = "SELECT * FROM tblsize;";
                 }
-    
                 connection.query(query, (err,results) => {
                     if(err) reject(new Error(err.message));
                     resolve(results);

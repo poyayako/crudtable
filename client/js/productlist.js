@@ -1,6 +1,6 @@
 
 
-const addBtn = document.querySelector('#add-name-btn');
+const saveToDbBtn = document.getElementById('save-btn');
 
 const cancelBtn = document.querySelector('.show-cancel-edit-btn');
 
@@ -10,11 +10,12 @@ document.querySelector('table tbody').addEventListener('click',function(event) {
     const cellName = event.target.parentNode.parentNode.childNodes[1];
     const cellDate = event.target.parentNode.parentNode.childNodes[2];
     
-    
-    if(event.target.className === "delete-row-btn") {
+    //delete button handler
+    if(event.target.className === "btn btn-danger btn-sm delete-row-btn") {
         //delete row in frontend
-        document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
-        deleteRowByID(event.target.dataset.id);    
+        confirmAction('Do you really want to delete this data?','delete')                
+        // document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
+        // deleteRowByID(event.target.dataset.id);
     }
     
     if(event.target.className === "show-edit-row-btn"){
@@ -37,56 +38,106 @@ document.querySelector('table tbody').addEventListener('click',function(event) {
 
     //save button handler
     if(event.target.className === "show-save-edit-btn"){
-        log(event.target.dataset.id);
-
-        
+        console.log(event.target.dataset.id);
         updateRowByID(event.target.dataset.id,cellName.textContent);
-        
         cellName.contentEditable = "false";
         cellDate.contentEditable = "false";
-        
         hideSaveCancelBtn(event.target);
     }
 });
 
+const confirmAction = (msg,action) => {
+    const dialogBoxBody = document.querySelector('.modal-body');
+    // const btnYes = document.getElementById('savebtn');
+    // const btnNo = document.getElementById('nobtn');
+    btnYes.onclick = () => {
+        console.log('deleterow');
+    }
+    btnNo.onclick = () => {
+        console.log('cancelAction');
+    }
+    dialogBoxBody.innerHTML = msg;
+}
+///////////////////////////////LOAD DROPDOWN DATA/////////////////////
+const loadCategoryDropdown = (data) => {    
+    const categoryDropdown = document.getElementById('prodcategory');
+    let listHTML = "";
+    data.forEach(data=>{
+        listHTML += `<option value='${data['CATEGORY_ID']}'>${data['CATEGORYTYPE']}</option>`;
+    })
+    console.log(listHTML);
+    categoryDropdown.innerHTML = listHTML;
+}
+const loadSizesDropdown = (data) => {    
+    const sizesDropdown = document.getElementById('prodsize');
+    let listHTML = "";
+    data.forEach(data=>{
+        const size = `${data['SIZE']} `+`-`+` ${data['SIZEDESC']}`;
+        listHTML += `<option value='${data['SIZE_ID']}'>${size}</option>`;
+    })
+    console.log(listHTML);
+    sizesDropdown.innerHTML = listHTML;
+}
+
+const getAllCategories = () => {
+    fetch('http://localhost:5000/category/all')
+    .then(response =>response.json())
+    .then(data =>loadCategoryDropdown(data['data']));
+}
+
+const getAllSizes = () => {
+    fetch('http://localhost:5000/size/all')
+    .then(response =>response.json())
+    .then(data =>loadSizesDropdown(data['data']));
+}
 
 
-//DOM ONLOAD
+
+
 document.addEventListener('DOMContentLoaded',function(){
-    fetch('http://localhost:5000/getall')
-    .then(response => response.json())
-    .then(data => loadHTMLTable(data['data']));
-    
+    fetch('http://localhost:5000/products/all')
+    .then(response =>response.json())
+    .then(data =>loadHTMLTable(data['data']));
+    getAllCategories();
+    getAllSizes();
+    console.log(saveToDbBtn);
 });
 
-
-addBtn.onclick = () => {
-    const nameInput = document.querySelector('#name-input'); 
-    const name = nameInput.value;
-    nameInput.value ="";
-
-    fetch('http://localhost:5000/insert',{
+//INSERT
+saveToDbBtn.onclick = () => {
+    
+    const prodName = document.getElementById('prodname').value;
+    const prodCategory = document.getElementById('prodcategory').value;
+    const prodPrice = document.getElementById('prodprice').value;
+    const prodSize = document.getElementById('prodsize').value;
+    const prodDescription = document.getElementById('proddescription').value;
+    
+    fetch('http://localhost:5000/insert/product',{
         headers: {
             'Content-type': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify({name : name})
+        body: JSON.stringify({
+            prodName : prodName,
+            prodCategory: prodCategory,
+            prodPrice: prodPrice,
+            prodSize: prodSize,
+            prodDescription: prodDescription
+        })
     })
     .then(response => response.json())
     .then(data =>  insertRowIntoTable(data['data']));
-    
 }
 
   
-function deleteRowByID(id){
-    fetch('http://localhost:5000/delete/' + id,
-    {
-         method : 'DELETE' 
-    })
-    .then(response => response.json())
-    .then(data => log(data));
-  
-}
+// function deleteRowByID(id){
+//     fetch('http://localhost:5000/delete/' + id,
+//     {
+//          method : 'DELETE' 
+//     })
+//     .then(response => response.json())
+//     .then(data => log(data));
+// }
 
 function updateRowByID(id,name){
     fetch('http://localhost:5000/update/',
@@ -125,7 +176,7 @@ function insertRowIntoTable(data){
         }   
     }
 
-    tableHTML += `<td><button class="delete-row-btn" data-id="${data.id}">Delete</button></td>`;
+    tableHTML += `<td><button class="btn btn-danger btn-sm delete-row-btn" data-id="${data.id}">Delete</button></td>`;
     tableHTML += `<td>
     <button class="show-edit-row-btn" data-id="${data.id}">Edit</button>
     <button class="hide-save-edit-btn" data-id="${data.id}" hidden>Save</button>
@@ -142,28 +193,46 @@ function insertRowIntoTable(data){
     }
 }
 
-
-
 function loadHTMLTable(data){
-
+    //console.log(Object.keys(data[0]));
+    const columnHeader = Object.keys(data[0]);
+    const headerCount = columnHeader.length;
+    tblColGenerator(columnHeader);
+    
     const table = document.querySelector('table tbody');
 
     if(data.length === 0){
         table.innerHTML = "<tr><td class='no-data' colspan='5'>No Data!</td></tr>";
     }else{
         let tableHTML = '';
-
-        data.forEach(function ({id,name,date_added}){
-            tableHTML += "<tr>";
-            tableHTML += `<td>${id}</td>`;
-            tableHTML += `<td>${name}</td>`;
-            tableHTML += `<td>${new Date(date_added).toLocaleString()}</td>`;
-            tableHTML += `<td><button class="delete-row-btn" data-id="${id}">Delete</button></td>`;
+      
+        data.forEach(function (index){
+            const columnKeys = Object.values(index);
+            const dataStatusColumn = columnKeys[5];
+            const descColIndex = 4;
+            if(dataStatusColumn=="Active"){
+                tableHTML += "<tr class='table-success'>";
+            }else if(dataStatusColumn=="Inactive"){
+                tableHTML += "<tr class='table-danger'>";
+            }else if(dataStatusColumn=="Obsolete"){
+                tableHTML += "<tr class='table-warning'>";
+            }
+            
+            for(let x = 0;x<=headerCount-1;x++){
+                if(x==descColIndex){
+                    tableHTML += `<td><span class="d-inline-block text-truncate" style="max-width: 300px;">${columnKeys[x]}</span></td>`;
+                }else{
+                    tableHTML += `<td>${columnKeys[x]}</td>`;
+                }
+                
+            }
+            
+            // tableHTML += `<td><button class="btn btn-danger btn-sm delete-row-btn" data-id="${columnKeys[0]}" data-toggle="modal" data-target="#dialogBox">Delete</button></td>`;
             tableHTML += `<td>
-            <button class="show-edit-row-btn" data-id="${id}">Edit</button>
-            <button class="hide-save-edit-btn" data-id="${id}">Save</button>
-            <button class="hide-cancel-edit-btn" data-id="${id}">Cancel</button>
-            </td>`;
+                <button class="btn btn-warning btn-sm show-edit-row-btn" data-id="${columnKeys[0]}">Edit</button>
+                <button class="hide-save-edit-btn" data-id="${columnKeys[0]}">Save</button>
+                <button class="hide-cancel-edit-btn" data-id="${columnKeys[0]}">Cancel</button>
+                </td>`;
             tableHTML += "</tr>";
         });
 
@@ -183,8 +252,6 @@ function revealSaveCancelBtn(element){
     // saveBtn.addEventListener('click',(event) => {
     //     log(event.target.getAttribute('data-id'));
     // });
-
-
     if(stillEditing()){
         showDialogBox();
     }else{
@@ -205,29 +272,24 @@ function makeRowEditable(element){
     const rowCount = fullRow.childElementCount - 3;
     let editableCells = [];
     for(let x = 1;x<=rowCount;x++){
-        
         const currentCellOfRow = element.parentNode.parentNode.childNodes[x];
         const sessionStorageKey = 'cell' + x;
         currentCellOfRow.contentEditable = "true";
-      
         editableCells.push(currentCellOfRow);
         log(sessionStorageKey + " " + currentCellOfRow.textContent);
         sessionStorage.setItem(sessionStorageKey, currentCellOfRow.innerHTML);
     }
 
-
     editableCells[0].onblur = function(event) {
          
        log(sessionStorage);
     }
-    
-    
     editableCells[0].focus();
 }
 
 
-
 function hideSaveCancelBtn(element){
+
     const editBtn = element.parentNode.childNodes[1];
     const saveBtn = element.parentNode.childNodes[3];
     const cancelBtn = element.parentNode.childNodes[5];
@@ -238,7 +300,6 @@ function hideSaveCancelBtn(element){
     saveBtn.classList.toggle('hide-save-edit-btn',true);
     cancelBtn.classList.toggle('show-cancel-edit-btn',false);
     cancelBtn.classList.toggle('hide-cancel-edit-btn',true);
-       
 }
 
 function stillEditing(){
@@ -250,38 +311,14 @@ function stillEditing(){
         break;
     }
     return false;
-
 }
 
-
-
-
-function showDialogBox(msg,type){
-
-    const modal = document.getElementById('myModal');
-    const closeBtn = document.getElementsByClassName('close')[0];
-    const modalContent = document.getElementsByClassName('modal-content');
-    console.log(closeBtn);
-
-    
-    closeBtn.onclick = function() {
-            modal.style.display = "none";
-        
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      }
-    
-      modal.style.display = "block";
-      
-
-}
-
-const log = params => {
-
-    console.log(params);
-
+const tblColGenerator = (columnList) => {
+    const tableHead = document.querySelector('table thead');
+    let tableColumns = '';
+    columnList.forEach(function(col){
+        tableColumns += `<th>${col}</th>`;
+    })
+    tableColumns += '<th colspan="2">ACTIONS</th>';
+    tableHead.innerHTML = tableColumns;
 }

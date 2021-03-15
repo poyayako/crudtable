@@ -8,8 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Simple Sidebar - Start Bootstrap Template</title>
-
+  <title>POS DASHBOARD</title>
   <!-- Bootstrap core CSS  and Font Awesome-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="vendor/font-awesome/css/all.min.css" rel="stylesheet">
@@ -21,12 +20,15 @@
 <body>
 
   <div class="d-flex" id="wrapper">
-
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
       <div class="sidebar-heading">POS DASHBOARD</div>
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action bg-light"><i class="pr-2 far fa-chart-bar"></i>Dashboard</a>
+        <a href="#" data-toggle="collapse" data-target="#suppsubmenu" class="list-group-item list-group-item-action bg-light"><i class="pr-2 far fa-handshake"></i>Supplier</a>
+        <div id="suppsubmenu" class="collapse">
+            <a href="#" class="list-group-item list-group-item-action bg-light">Suppliers List</a>
+        </div>
         <a href="#" data-toggle="collapse" data-target="#prodsubmenu" class=" list-group-item list-group-item-action bg-light"><i class="pr-2 fas fa-shopping-bag"></i>Products</a>
         <div id="prodsubmenu" class="collapse">
             <a href="#" class="list-group-item list-group-item-action bg-light" id="prodlistmenu" onclick="loadContent('productlist')">Product List</a>
@@ -34,7 +36,7 @@
         </div>
         <a href="#" data-toggle="collapse" data-target="#invsubmenu" class="list-group-item list-group-item-action bg-light"><i class="pr-2 fas fa-warehouse"></i>Inventory</a>
         <div id="invsubmenu" class="collapse">
-            <a href="#" class="list-group-item list-group-item-action bg-light">&nbsp;&nbsp;Inventory List</a>
+          <a href="#" class="list-group-item list-group-item-action bg-light">Inventory List</a>
         </div>
       </div>
     </div>
@@ -82,11 +84,12 @@
   <!-- /#wrapper -->
 
   <!-- Bootstrap core JavaScript -->
+  
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
   <!-- Menu Toggle Script -->
   <script>
+  
     $("#menu-toggle").click(function(e) {
     e.preventDefault();
     $("#wrapper").toggleClass("toggled");

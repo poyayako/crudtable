@@ -17,10 +17,14 @@ const loadContent = (contentToLoad) => {
     contentLoader.setAttribute('type','text/html');
     contentLoader.setAttribute('data',CTL);
     contentLoader.setAttribute('id','contentLoaderObject');
-    contentLoader.setAttribute('style','width:100%;height:100vh')
+    contentLoader.setAttribute('style','width:100%;height:100vh;margin:0px;')
     const mainContent = document.getElementById("main-content");
-    mainContent.appendChild(contentLoader);
-    //document.getElementById("main-content").innerHTML= contentLoader;
+    const existingContentLoader = document.getElementById('contentLoaderObject');
+    
+     if(existingContentLoader==null || existingContentLoader==undefined){
+        mainContent.appendChild(contentLoader);    
+    }
+    
     
      
 }
