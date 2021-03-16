@@ -13,7 +13,8 @@ const dbService = require('./dbService');
 app.use(cors());
 
 app.use(express.static(path.join(__dirname,'./public')));
-console.log(path.join(__dirname,'./public'))
+
+console.log(path.join(__dirname,'./public'));
 
 
 app.use(express.json());
@@ -37,14 +38,13 @@ app.get('/:tblName/:id',(request,response) => {
 //insert product
 app.post('/insert/product',(request,response) => {
 
-    const { prodName,prodCategory,prodDescription,prodPrice,prodSize } = request.body;
-    console.log(prodName);
-    // const db = dbService.getDbServiceInstance();
-    // const result = db.insertData(name);
+    const db = dbService.getDbServiceInstance();
+    const result = db.insertProductData(request.body);
+    
 
-    // result
-    // .then(data => response.json({ data : data}))
-    // .catch(err => console.log(err));
+    result
+    .then(data => response.json({ data : data}))
+    .catch(err => console.log(err));
 });
 
 

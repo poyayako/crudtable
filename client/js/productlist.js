@@ -9,7 +9,8 @@ const cancelBtn = document.querySelector('.show-cancel-edit-btn');
 document.querySelector('table tbody').addEventListener('click',function(event) {
     const cellName = event.target.parentNode.parentNode.childNodes[1];
     const cellDate = event.target.parentNode.parentNode.childNodes[2];
-    
+    //console.log(event.target);
+
     //delete button handler
     if(event.target.className === "btn btn-danger btn-sm delete-row-btn") {
         //delete row in frontend
@@ -19,8 +20,8 @@ document.querySelector('table tbody').addEventListener('click',function(event) {
     }
     
     if(event.target.className === "show-edit-row-btn"){
-    
-        revealSaveCancelBtn(event.target);
+        //console.log(event.target);
+        //revealSaveCancelBtn(event.target);
     }
 
     //cancel button handler
@@ -68,6 +69,7 @@ const loadCategoryDropdown = (data) => {
     console.log(listHTML);
     categoryDropdown.innerHTML = listHTML;
 }
+
 const loadSizesDropdown = (data) => {    
     const sizesDropdown = document.getElementById('prodsize');
     let listHTML = "";
@@ -90,27 +92,28 @@ const getAllSizes = () => {
     .then(response =>response.json())
     .then(data =>loadSizesDropdown(data['data']));
 }
-
+///////////////////////////////LOAD DROPDOWN DATA/////////////////////
 
 
 
 document.addEventListener('DOMContentLoaded',function(){
+    
     fetch('http://localhost:5000/products/all')
     .then(response =>response.json())
     .then(data =>loadHTMLTable(data['data']));
+    
     getAllCategories();
     getAllSizes();
-    console.log(saveToDbBtn);
 });
 
 //INSERT
 saveToDbBtn.onclick = () => {
     
-    const prodName = document.getElementById('prodname').value;
-    const prodCategory = document.getElementById('prodcategory').value;
-    const prodPrice = document.getElementById('prodprice').value;
-    const prodSize = document.getElementById('prodsize').value;
-    const prodDescription = document.getElementById('proddescription').value;
+    const prodName = document.getElementById('prodname');
+    const prodCategory = document.getElementById('prodcategory');
+    const prodPrice = document.getElementById('prodprice');
+    const prodSize = document.getElementById('prodsize');
+    const prodDescription = document.getElementById('proddescription');
     
     fetch('http://localhost:5000/insert/product',{
         headers: {
@@ -118,46 +121,48 @@ saveToDbBtn.onclick = () => {
         },
         method: 'POST',
         body: JSON.stringify({
-            prodName : prodName,
-            prodCategory: prodCategory,
-            prodPrice: prodPrice,
-            prodSize: prodSize,
-            prodDescription: prodDescription
+            prodName : prodName.value,
+            prodCategory: prodCategory.value,
+            prodPrice: prodPrice.value,
+            prodSize: prodSize.value,
+            prodDescription: prodDescription.value
         })
     })
     .then(response => response.json())
-    .then(data =>  insertRowIntoTable(data['data']));
+    .then(data => displayAlert(data));
 }
 
-  
-// function deleteRowByID(id){
-//     fetch('http://localhost:5000/delete/' + id,
-//     {
-//          method : 'DELETE' 
-//     })
-//     .then(response => response.json())
-//     .then(data => log(data));
-// }
-
-function updateRowByID(id,name){
-    fetch('http://localhost:5000/update/',
-    {
-        headers: {
-            'Content-type': 'application/json'
-        },
-        method : 'PATCH',
-         body : JSON.stringify({
-            id : id,
-            name : name
-         })
-    })
-    .then(response => response.json())
-    .then(data => log(data));
-
+const displayAlert = (data) => {
+    const datakeys = Object.keys(data);
+    const alertbox = document.getElementById('alertbox');
+    
+    if(datakeys.length == 0){
+        console.log('sasda')
+        alertbox.innerHTML = "Data successfully added to the database!"
+        alertbox.classList.replace('alert-warning','alert-success');
+        alertbox.style.display ="block";
+        clearInputs();
+    }
+    if(datakeys.length == 1){
+        alertbox.innerHTML = data['data']['details'][0].message;
+        alertbox.classList.replace('alert-success','alert-warning');
+        alertbox.style.display = "block";
+    }
 }
 
+const clearInputs = () => {
+    const prodName = document.getElementById('prodname');
+    const prodCategory = document.getElementById('prodcategory');
+    const prodPrice = document.getElementById('prodprice');
+    const prodSize = document.getElementById('prodsize');
+    const prodDescription = document.getElementById('proddescription');
 
-//My Methods Goes Here//
+    prodName.value = '';
+    prodCategory.value = '';
+    prodPrice.value = '';
+    prodSize.value = '';
+    prodDescription.value = '';
+}
 
 function insertRowIntoTable(data){
     const table = document.querySelector('table tbody');
@@ -192,6 +197,37 @@ function insertRowIntoTable(data){
         newRow.innerHTML = tableHTML;
     }
 }
+  
+// function deleteRowByID(id){
+//     fetch('http://localhost:5000/delete/' + id,
+//     {
+//          method : 'DELETE' 
+//     })
+//     .then(response => response.json())
+//     .then(data => log(data));
+// }
+
+function updateRowByID(id,name){
+    fetch('http://localhost:5000/update/',
+    {
+        headers: {
+            'Content-type': 'application/json'
+        },
+        method : 'PATCH',
+         body : JSON.stringify({
+            id : id,
+            name : name
+         })
+    })
+    .then(response => response.json())
+    .then(data => log(data));
+
+}
+
+
+//My Methods Goes Here//
+
+
 
 function loadHTMLTable(data){
     //console.log(Object.keys(data[0]));
@@ -266,52 +302,52 @@ function revealSaveCancelBtn(element){
     }
 }
 
-function makeRowEditable(element){
+// function makeRowEditable(element){
 
-    const fullRow = element.parentNode.parentNode;
-    const rowCount = fullRow.childElementCount - 3;
-    let editableCells = [];
-    for(let x = 1;x<=rowCount;x++){
-        const currentCellOfRow = element.parentNode.parentNode.childNodes[x];
-        const sessionStorageKey = 'cell' + x;
-        currentCellOfRow.contentEditable = "true";
-        editableCells.push(currentCellOfRow);
-        log(sessionStorageKey + " " + currentCellOfRow.textContent);
-        sessionStorage.setItem(sessionStorageKey, currentCellOfRow.innerHTML);
-    }
+//     const fullRow = element.parentNode.parentNode;
+//     const rowCount = fullRow.childElementCount - 3;
+//     let editableCells = [];
+//     for(let x = 1;x<=rowCount;x++){
+//         const currentCellOfRow = element.parentNode.parentNode.childNodes[x];
+//         const sessionStorageKey = 'cell' + x;
+//         currentCellOfRow.contentEditable = "true";
+//         editableCells.push(currentCellOfRow);
+//         log(sessionStorageKey + " " + currentCellOfRow.textContent);
+//         sessionStorage.setItem(sessionStorageKey, currentCellOfRow.innerHTML);
+//     }
 
-    editableCells[0].onblur = function(event) {
+//     editableCells[0].onblur = function(event) {
          
-       log(sessionStorage);
-    }
-    editableCells[0].focus();
-}
+//       
+//     }
+//     editableCells[0].focus();
+// }
 
 
-function hideSaveCancelBtn(element){
+// function hideSaveCancelBtn(element){
 
-    const editBtn = element.parentNode.childNodes[1];
-    const saveBtn = element.parentNode.childNodes[3];
-    const cancelBtn = element.parentNode.childNodes[5];
+//     const editBtn = element.parentNode.childNodes[1];
+//     const saveBtn = element.parentNode.childNodes[3];
+//     const cancelBtn = element.parentNode.childNodes[5];
     
-    editBtn.classList.toggle('hide-edit-row-btn',false);
-    editBtn.classList.toggle('show-edit-row-btn',true);
-    saveBtn.classList.toggle('show-save-edit-btn',false);
-    saveBtn.classList.toggle('hide-save-edit-btn',true);
-    cancelBtn.classList.toggle('show-cancel-edit-btn',false);
-    cancelBtn.classList.toggle('hide-cancel-edit-btn',true);
-}
+//     editBtn.classList.toggle('hide-edit-row-btn',false);
+//     editBtn.classList.toggle('show-edit-row-btn',true);
+//     saveBtn.classList.toggle('show-save-edit-btn',false);
+//     saveBtn.classList.toggle('hide-save-edit-btn',true);
+//     cancelBtn.classList.toggle('show-cancel-edit-btn',false);
+//     cancelBtn.classList.toggle('hide-cancel-edit-btn',true);
+// }
 
-function stillEditing(){
+// function stillEditing(){
     
-    const saveBtn = document.querySelectorAll('.show-save-edit-btn');
+//     const saveBtn = document.querySelectorAll('.show-save-edit-btn');
 
-    for(let btn of saveBtn){
-        return true;
-        break;
-    }
-    return false;
-}
+//     for(let btn of saveBtn){
+//         return true;
+//         break;
+//     }
+//     return false;
+// }
 
 const tblColGenerator = (columnList) => {
     const tableHead = document.querySelector('table thead');

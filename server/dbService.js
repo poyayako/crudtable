@@ -1,5 +1,7 @@
 const mysql = require('mysql');
 const dotenv = require('dotenv');
+const {productsValidation} = require('./validation');
+const { resolve } = require('path');
 let instance = null;
 dotenv.config();
 
@@ -54,26 +56,28 @@ class DbService{
         }
     }
 
-    async insertData(name){
+    async insertProductData(data){
         try{
             const dateAdded = new Date();
-            const insertId = await new Promise((resolve,reject) =>{
-                
+            const productCode = "testcode";
+            const insertProduct = await new Promise((resolve,reject) =>{
+                const prodStatus = "Active";
+                const { error } = productsValidation(data);
 
-                const query = "INSERT INTO names (name,date_added) VALUES (?,?);";
-                
-                connection.query(query,[name,dateAdded], (err,result) => {
-                    if(err) reject(new Error(err.message));
-                    resolve(result.insertId);
-                })
+                if(error==null || error == undefined || error==""){
+                    const { prodName,prodCategory,prodDescription,prodPrice,prodSize } = data;
+                    const query = "INSERT INTO tblproduct(PRODUCTCODE,PRODUCTNAME,PRODUCTDESC,PRODSIZE_ID,PRODCAT_ID,PRODUCTPRICE,PRODUCTSTATUS,DATEUPDATED)VALUES(?,?,?,?,?,?,?,?)";
+                    
+                    connection.query(query,[productCode,prodName,prodDescription,prodSize,prodCategory,prodPrice,prodStatus,dateAdded], (err,result) => {
+                        if(err) reject(new Error(err.message));
+            
+                        resolve(result.insertProduct);
+                    })
+                }else{
+                    resolve(error);
+                }
             });
-            //.console.log(insertId);
-            return {
-                id : insertId,
-                name : name,
-                dateAdded : dateAdded
-            };
-
+            return insertProduct;
         }catch (error){
             console.log(error);
         }
