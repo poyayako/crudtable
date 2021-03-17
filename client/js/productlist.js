@@ -1,51 +1,113 @@
 
 
+
+const addProductBtn = document.getElementById('addproductbtn');
+//Modal Components
+const modalTitle = document.getElementById('modaltitle');
 const saveToDbBtn = document.getElementById('save-btn');
-
 const cancelBtn = document.querySelector('.show-cancel-edit-btn');
+const alertbox = document.getElementById('alertbox');
+const productStatusGroup = document.getElementById('productstatus');
+const productCodeGroup = document.getElementById('productcode');
+
+const txtProdName = document.getElementById('prodname');
+const txtProdCode = document.getElementById('prodcode');
+const cmbProdStatus = document.getElementById('prodstatus');
+const cmbProdCategory = document.getElementById('prodcategory');
+const txtProdPrice = document.getElementById('prodprice');
+const cmbProdSize = document.getElementById('prodsize');
+const txtProdDescription = document.getElementById('proddescription');
+
+let action = ''
 
 
-//Selecting each delete button inside the Table
+//Add Product Button
+addProductBtn.addEventListener('click',(event)=>{
+
+    action = 'addproduct';
+    productCodeGroup.style.display = 'none';
+
+    alertbox.style.display = 'none';
+    productStatusGroup.style.display = "none";
+    modalTitle.innerHTML = 'Add New Product';
+    
+
+})
+
+document.addEventListener('DOMContentLoaded',function(){
+    
+    fetch('http://localhost:5000/products/all')
+    .then(response =>response.json())
+    .then(data =>loadHTMLTable(data['data']));
+    
+    getAllCategories();
+    getAllSizes();
+});
+
+//EDIT BUTTON FUNCTIONALITY
 document.querySelector('table tbody').addEventListener('click',function(event) {
-    const cellName = event.target.parentNode.parentNode.childNodes[1];
-    const cellDate = event.target.parentNode.parentNode.childNodes[2];
-    //console.log(event.target);
+    
+    action = "editproduct";
+    setModalFieldsValue();  
+ 
+});
 
-    //delete button handler
-    if(event.target.className === "btn btn-danger btn-sm delete-row-btn") {
-        //delete row in frontend
-        confirmAction('Do you really want to delete this data?','delete')                
-        // document.getElementById("table").deleteRow(event.target.parentNode.parentNode.rowIndex);
-        // deleteRowByID(event.target.dataset.id);
+const setModalFieldsValue = () =>{
+    const prodCodeCell = event.target.parentNode.parentNode.childNodes[1];
+    const prodNameCell = event.target.parentNode.parentNode.childNodes[2];
+    const prodPriceCell = event.target.parentNode.parentNode.childNodes[3];
+    const prodDescCell = event.target.parentNode.parentNode.childNodes[4];
+    const prodStatusCell = event.target.parentNode.parentNode.childNodes[5];
+    const prodSizeCell = event.target.parentNode.parentNode.childNodes[6];
+    const prodCategoryCell = event.target.parentNode.parentNode.childNodes[7];
+    const modalTitle = document.getElementById('modaltitle');
+
+    const cmbCategoryOptions = cmbProdCategory.options;
+    const cmbSizeOptions = cmbProdSize.options;
+
+    alertbox.style.display = 'none';
+    modalTitle.innerHTML = 'Edit Product';
+    productStatusGroup.style.display = "block";
+    productCodeGroup.style.display = 'block';
+    
+
+    if(prodStatusCell.innerHTML == 'Active'){
+        cmbProdStatus.selectedIndex = "0";
+    }
+    if(prodStatusCell.innerHTML== 'Inactive'){
+        cmbProdStatus.selectedIndex = "1";
+    }
+    if(prodStatusCell.innerHTML == 'Obsolete'){
+        cmbProdStatus.selectedIndex = "2";
+    }
+
+    let cmbCatSelectedIndex = 0;
+    for(let x = 0;x<=cmbCategoryOptions.length-1;x++){
+        if(prodCategoryCell.innerHTML == cmbCategoryOptions[x].innerHTML ){
+            cmbCatSelectedIndex = x;
+            break;
+        }
     }
     
-    if(event.target.className === "show-edit-row-btn"){
-        //console.log(event.target);
-        //revealSaveCancelBtn(event.target);
+    let cmbSizeSelectedIndex = 0;
+    for(let x = 0;x<=cmbSizeOptions.length-1;x++){
+        if(prodSizeCell.innerHTML == cmbSizeOptions[x].innerHTML ){
+            cmbSizeSelectedIndex = x;
+            break;
+        }
     }
 
-    //cancel button handler
-    if(event.target.className === "show-cancel-edit-btn"){
-        const cellNameOldVal = sessionStorage.getItem('cell1');
-        const cellDateOldVal = sessionStorage.getItem('cell2');
-        
-        cellName.innerHTML = cellNameOldVal;
-        cellDate.innerHTML = cellDateOldVal;
-        cellName.contentEditable = "false";
-        cellDate.contentEditable = "false";
-        
-        hideSaveCancelBtn(event.target);
-    }
+    
+    cmbProdCategory.selectedIndex = cmbCatSelectedIndex;
+    cmbProdCategory.selectedIndex = cmbCatSelectedIndex;
+    txtProdName.value = prodNameCell.innerHTML;
+    txtProdCode.value = prodCodeCell.innerHTML;
+    txtProdPrice.value = prodPriceCell.innerHTML;
+    txtProdDescription.value = prodDescCell.childNodes[0].innerHTML;
+    
+}
 
-    //save button handler
-    if(event.target.className === "show-save-edit-btn"){
-        console.log(event.target.dataset.id);
-        updateRowByID(event.target.dataset.id,cellName.textContent);
-        cellName.contentEditable = "false";
-        cellDate.contentEditable = "false";
-        hideSaveCancelBtn(event.target);
-    }
-});
+
 
 const confirmAction = (msg,action) => {
     const dialogBoxBody = document.querySelector('.modal-body');
@@ -95,18 +157,7 @@ const getAllSizes = () => {
 ///////////////////////////////LOAD DROPDOWN DATA/////////////////////
 
 
-
-document.addEventListener('DOMContentLoaded',function(){
-    
-    fetch('http://localhost:5000/products/all')
-    .then(response =>response.json())
-    .then(data =>loadHTMLTable(data['data']));
-    
-    getAllCategories();
-    getAllSizes();
-});
-
-//INSERT
+//INSERT Product Data To Database
 saveToDbBtn.onclick = () => {
     
     const prodName = document.getElementById('prodname');
@@ -164,39 +215,7 @@ const clearInputs = () => {
     prodDescription.value = '';
 }
 
-function insertRowIntoTable(data){
-    const table = document.querySelector('table tbody');
-    const isTableData = table.querySelector('.no-data');
 
-    let tableHTML = "<tr>";
-
-    for(var key in data){    
-        if(data.hasOwnProperty(key)){
-            if(key === 'dateAdded'){
-                data[key] = new Date(data[key]).toLocaleString();
-            }
-            
-            tableHTML += `<td>${data[key]}</td>`;
-            
-        }   
-    }
-
-    tableHTML += `<td><button class="btn btn-danger btn-sm delete-row-btn" data-id="${data.id}">Delete</button></td>`;
-    tableHTML += `<td>
-    <button class="show-edit-row-btn" data-id="${data.id}">Edit</button>
-    <button class="hide-save-edit-btn" data-id="${data.id}" hidden>Save</button>
-    <button class="hide-cancel-edit-btn" data-id="${data.id}" hidden>Cancel</button>
-    </td>`;
-
-    tableHTML += "</tr>";
-
-    if(isTableData){
-        table.innerHTML = tableHTML;
-    }else{
-        const newRow = table.insertRow();
-        newRow.innerHTML = tableHTML;
-    }
-}
   
 // function deleteRowByID(id){
 //     fetch('http://localhost:5000/delete/' + id,
@@ -256,16 +275,15 @@ function loadHTMLTable(data){
             
             for(let x = 0;x<=headerCount-1;x++){
                 if(x==descColIndex){
-                    tableHTML += `<td><span class="d-inline-block text-truncate" style="max-width: 300px;">${columnKeys[x]}</span></td>`;
+                    tableHTML += `<td><span class="d-inline-block text-truncate" id="decriptionspan" style="max-width: 300px;">${columnKeys[x]}</span></td>`;
                 }else{
                     tableHTML += `<td>${columnKeys[x]}</td>`;
                 }
                 
             }
             
-            // tableHTML += `<td><button class="btn btn-danger btn-sm delete-row-btn" data-id="${columnKeys[0]}" data-toggle="modal" data-target="#dialogBox">Delete</button></td>`;
             tableHTML += `<td>
-                <button class="btn btn-warning btn-sm show-edit-row-btn" data-id="${columnKeys[0]}">Edit</button>
+                <button class="btn btn-warning btn-sm show-edit-row-btn" data-toggle="modal" data-target="#inputForm" data-id="${columnKeys[0]}">Edit</button>
                 <button class="hide-save-edit-btn" data-id="${columnKeys[0]}">Save</button>
                 <button class="hide-cancel-edit-btn" data-id="${columnKeys[0]}">Cancel</button>
                 </td>`;
@@ -278,76 +296,39 @@ function loadHTMLTable(data){
 
 }
 
+function insertRowIntoTable(data){
+    const table = document.querySelector('table tbody');
+    const isTableData = table.querySelector('.no-data');
 
-function revealSaveCancelBtn(element){
-    
-    const editBtn = element.parentNode.childNodes[1];
-    const saveBtn = element.parentNode.childNodes[3];
-    const cancelBtn = element.parentNode.childNodes[5];
+    let tableHTML = "<tr>";
 
-    // saveBtn.addEventListener('click',(event) => {
-    //     log(event.target.getAttribute('data-id'));
-    // });
-    if(stillEditing()){
-        showDialogBox();
+    for(var key in data){    
+        if(data.hasOwnProperty(key)){
+            if(key === 'dateAdded'){
+                data[key] = new Date(data[key]).toLocaleString();
+            }
+            
+            tableHTML += `<td>${data[key]}</td>`;
+            
+        }   
+    }
+
+    tableHTML += `<td><button class="btn btn-danger btn-sm delete-row-btn" data-id="${data.id}">Delete</button></td>`;
+    tableHTML += `<td>
+    <button class="show-edit-row-btn" data-id="${data.id}">Edit</button>
+    <button class="hide-save-edit-btn" data-id="${data.id}" hidden>Save</button>
+    <button class="hide-cancel-edit-btn" data-id="${data.id}" hidden>Cancel</button>
+    </td>`;
+
+    tableHTML += "</tr>";
+
+    if(isTableData){
+        table.innerHTML = tableHTML;
     }else{
-        makeRowEditable(element);
-        editBtn.classList.toggle('hide-edit-row-btn',true);
-        editBtn.classList.toggle('show-edit-row-btn',false);
-        saveBtn.classList.toggle('show-save-edit-btn',true);
-        saveBtn.classList.toggle('hide-save-edit-btn',false);
-        cancelBtn.classList.toggle('show-cancel-edit-btn',true);
-        cancelBtn.classList.toggle('hide-cancel-edit-btn',false);
-
+        const newRow = table.insertRow();
+        newRow.innerHTML = tableHTML;
     }
 }
-
-// function makeRowEditable(element){
-
-//     const fullRow = element.parentNode.parentNode;
-//     const rowCount = fullRow.childElementCount - 3;
-//     let editableCells = [];
-//     for(let x = 1;x<=rowCount;x++){
-//         const currentCellOfRow = element.parentNode.parentNode.childNodes[x];
-//         const sessionStorageKey = 'cell' + x;
-//         currentCellOfRow.contentEditable = "true";
-//         editableCells.push(currentCellOfRow);
-//         log(sessionStorageKey + " " + currentCellOfRow.textContent);
-//         sessionStorage.setItem(sessionStorageKey, currentCellOfRow.innerHTML);
-//     }
-
-//     editableCells[0].onblur = function(event) {
-         
-//       
-//     }
-//     editableCells[0].focus();
-// }
-
-
-// function hideSaveCancelBtn(element){
-
-//     const editBtn = element.parentNode.childNodes[1];
-//     const saveBtn = element.parentNode.childNodes[3];
-//     const cancelBtn = element.parentNode.childNodes[5];
-    
-//     editBtn.classList.toggle('hide-edit-row-btn',false);
-//     editBtn.classList.toggle('show-edit-row-btn',true);
-//     saveBtn.classList.toggle('show-save-edit-btn',false);
-//     saveBtn.classList.toggle('hide-save-edit-btn',true);
-//     cancelBtn.classList.toggle('show-cancel-edit-btn',false);
-//     cancelBtn.classList.toggle('hide-cancel-edit-btn',true);
-// }
-
-// function stillEditing(){
-    
-//     const saveBtn = document.querySelectorAll('.show-save-edit-btn');
-
-//     for(let btn of saveBtn){
-//         return true;
-//         break;
-//     }
-//     return false;
-// }
 
 const tblColGenerator = (columnList) => {
     const tableHead = document.querySelector('table thead');
@@ -358,3 +339,24 @@ const tblColGenerator = (columnList) => {
     tableColumns += '<th colspan="2">ACTIONS</th>';
     tableHead.innerHTML = tableColumns;
 }
+// function revealSaveCancelBtn(element){
+    
+//     const editBtn = element.parentNode.childNodes[1];
+//     const saveBtn = element.parentNode.childNodes[3];
+//     const cancelBtn = element.parentNode.childNodes[5];
+
+    
+//     if(stillEditing()){
+//         showDialogBox();
+//     }else{
+//         makeRowEditable(element);
+//         editBtn.classList.toggle('hide-edit-row-btn',true);
+//         editBtn.classList.toggle('show-edit-row-btn',false);
+//         saveBtn.classList.toggle('show-save-edit-btn',true);
+//         saveBtn.classList.toggle('hide-save-edit-btn',false);
+//         cancelBtn.classList.toggle('show-cancel-edit-btn',true);
+//         cancelBtn.classList.toggle('hide-cancel-edit-btn',false);
+
+//     }
+// }
+
